@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jms="http://www.springframework.org/schema/jms"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:amq="http://activemq.apache.org/schema/core"
+	xmlns:jpa="http://www.springframework.org/schema/data/jpa" xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:websocket="http://www.springframework.org/schema/websocket"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms.xsd
+		http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core-5.10.0.xsd 
+		http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket-4.0.xsd 
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+		http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
+	
+	<!-- annotation 配置 -->
+	<context:annotation-config />
+	
+	<!-- Spring 定时任务 -->
+	<task:annotation-driven />
+
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	
+	<!-- Spring 加载sys.properties -->
+	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"
+		lazy-init="false">
+		<property name="locations">
+			<list>
+				<value>/WEB-INF/spring/sys.properties</value>
+			</list>
+		</property>
+	</bean>
+	
+	<!-- Spring 文件上传 -->
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<!-- <property name="maxUploadSize" value="2097152"/> -->
+		<property name="maxUploadSize" value="100000000" />
+	</bean>
+	
+	<!-- ################################# -->
+	<!-- dataSource 数据源 阿里的Druid项目 -->
+	<!-- ################################# -->
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+		init-method="init" destroy-method="close">
+		<!-- 基本属性 url、user、password -->
+		<property name="url" value="${db.url}" />
+		<property name="username" value="${db.user}" />
+		<property name="password" value="${db.password}" />
+
+		<!-- 配置初始化大小、最小、最大 -->
+		<property name="initialSize" value="10" />
+		<property name="minIdle" value="10" />
+		<property name="maxActive" value="200" />
+
+		<!-- 配置获取连接等待超时的时间 -->
+		<property name="maxWait" value="60000" />
+
+		<!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+		<property name="timeBetweenEvictionRunsMillis" value="60000" />
+
+		<!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+		<property name="minEvictableIdleTimeMillis" value="300000" />
+
+		<property name="validationQuery" value="SELECT 'x'" />
+		<property name="testWhileIdle" value="true" />
+		<property name="testOnBorrow" value="false" />
+		<property name="testOnReturn" value="false" />
+
+		<!-- 打开PSCache，并且指定每个连接上PSCache的大小 -->
+		<property name="poolPreparedStatements" value="true" />
+		<property name="maxPoolPreparedStatementPerConnectionSize"
+			value="20" />
+		<!-- 支持 utf8mb4 字符集 -->
+		<property name="connectionInitSqls" value="set names utf8;" />
+	</bean>
+
+	<!-- ############# -->
+	<!-- JDBC Template -->
+	<!-- ############# -->
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	<bean id="dbUtil" class="cc.rssoft.framework.db.util.DbUtil">
+		<constructor-arg name="tenantManagerDbname" value="coach" />
+		<constructor-arg name="tenantDbnamePerfix" value="" />
+	</bean>
+	
+	<bean id="superDaoMultitenant" class="cc.rssoft.framework.db.dao.impl.SuperDaoMultitenantImpl" />
+	<bean id="superDao" class="cc.rssoft.framework.db.dao.impl.SuperDaoImpl">
+		<constructor-arg name="superDaoMultitenant" ref="superDaoMultitenant" />
+	</bean>
+
+	<!-- ################### -->
+	<!-- Transaction Manager -->
+	<!-- ################### -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<!-- 注解驱动的事务管理使用"transactionManager" -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+	<!-- ################### -->
+	<!-- TransactionTemplate -->
+	<!-- ################### -->
+	<bean id="transactionTemplate"
+		class="org.springframework.transaction.support.TransactionTemplate">
+		<property name="transactionManager" ref="transactionManager" />
+	</bean>
+	
+	<!-- ################### -->
+	<!-- Service bean -->
+	<!-- ################### -->
+	<bean id="userService" class="com.ningbo.javacoach.user.service.UserServiceImpl" />
+	<bean id="coachService" class="com.ningbo.javacoach.coach.service.CoachServiceImpl" />
+	<bean id="studentService" class="com.ningbo.javacoach.student.service.StudentServiceImpl" />
+	
+	
+</beans>

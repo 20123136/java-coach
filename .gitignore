@@ -1,0 +1,17 @@
+*.class
+
+# Package Files #
+*.war
+*.ear
+
+
+/build/
+/target/
+/.settings/
+/.classpath
+/.project
+/.springBeans
+
+/bin/
+
+/src/main/webapp/WEB-INF/config/sys.properties
