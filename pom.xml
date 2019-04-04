@@ -258,6 +258,23 @@
 			<artifactId>jackson-annotations</artifactId>
 			<version>2.7.4</version>
 		</dependency>
+		
+
+		<!-- https://mvnrepository.com/artifact/org.codehaus.jackson/jackson-mapper-lgpl -->
+		<dependency>
+		    <groupId>org.codehaus.jackson</groupId>
+		    <artifactId>jackson-mapper-lgpl</artifactId>
+		    <version>1.9.13</version>
+		</dependency>
+		
+			
+		<!-- https://mvnrepository.com/artifact/org.codehaus.jackson/jackson-core-lgpl -->
+		<dependency>
+		    <groupId>org.codehaus.jackson</groupId>
+		    <artifactId>jackson-core-lgpl</artifactId>
+		    <version>1.9.13</version>
+		</dependency>
+
 
 		<!-- AspectJ -->
 		<dependency>
